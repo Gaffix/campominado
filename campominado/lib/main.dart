@@ -1,4 +1,4 @@
-import 'dart:io';
+import 'package:flutter/material.dart';
 import 'dart:math';
 
 class Ponto {
@@ -60,70 +60,119 @@ List<List<String>> criarTabuleiro(int tamanho, Set<Ponto> minasPos) {
   );
 }
 
-class CampoMinado {
-  int tamanho;
-  int numeroMinas;
+void main() {
+  runApp(const CampoMinadoApp());
+}
+
+class CampoMinadoApp extends StatelessWidget {
+  const CampoMinadoApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'Campo Minado',
+      theme: ThemeData.dark(),
+      home: const TelaJogo(), 
+    );
+  }
+}
+
+class TelaJogo extends StatefulWidget {
+  const TelaJogo({super.key});
+
+  @override
+  State<TelaJogo> createState() => _TelaJogoState();
+}
+
+class _TelaJogoState extends State<TelaJogo> {
+  static const int campoSize = 8;
+  static const int numeroMinas = 8;
+
   late Set<Ponto> minasPos;
   late List<List<String>> tabuleiro;
   late List<List<bool>> revelado;
 
-  CampoMinado(this.tamanho, this.numeroMinas) {
-    iniciarJogo();
+  @override
+  void initState() {
+    super.initState();
+    _iniciarJogo();
   }
 
-  void iniciarJogo() {
-    minasPos = gerarMinas(tamanho, numeroMinas);
-    tabuleiro = criarTabuleiro(tamanho, minasPos);
-    revelado = List.generate(tamanho, (_) => List.generate(tamanho, (_) => false));
+  void _iniciarJogo() {
+    setState(() {
+      minasPos = gerarMinas(campoSize, numeroMinas);
+      tabuleiro = criarTabuleiro(campoSize, minasPos);
+      revelado = List.generate(campoSize, (_) => List.generate(campoSize, (_) => false));
+    });
   }
 
-  void clicarCelula(int x, int y) {
-    if (x < 0 || x >= tamanho || y < 0 || y >= tamanho) return;
+  void _aoClicarCelula(int x, int y) {
     if (revelado[x][y]) return;
-    revelado[x][y] = true;
+      
+    setState(() {
+      revelado[x][y] = true;
+    });
   }
-}
 
-void printTabuleiro(CampoMinado jogo) {
-  stdout.write('  ');
-  for (int i = 0; i < jogo.tamanho; i++) {
-    stdout.write('$i ');
-  }
-  print('');
-  for (int i = 0; i < jogo.tamanho; i++) {
-    stdout.write('$i ');
-    for (int j = 0; j < jogo.tamanho; j++) {
-      if (jogo.revelado[i][j]) {
-        stdout.write('${jogo.tabuleiro[i][j]} ');
-      } else {
-        stdout.write('# ');
-      }
-    }
-    print('');
-  }
-}
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Campo Minado'),
+      ),
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          AspectRatio(
+            aspectRatio: 1,
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: GridView.builder(
+                physics: const NeverScrollableScrollPhysics(),
+                gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: campoSize,
+                  crossAxisSpacing: 2,
+                  mainAxisSpacing: 2,
+                ),
+                itemCount: campoSize * campoSize,
+                itemBuilder: (context, index) {
+                  int x = index ~/ campoSize;
+                  int y = index % campoSize;
+                  
+                  bool isRevelado = revelado[x][y];
+                  String valor = tabuleiro[x][y];
 
-void main() {
-  final jogo = CampoMinado(8, 8);
+                  Widget conteudo;
+                  if (isRevelado) {
+                    if (valor == '*') {
+                      conteudo = const Icon(Icons.emergency, color: Colors.redAccent, size: 20);
+                    } else if (valor == '.') {
+                      conteudo = const SizedBox.shrink();
+                    } else {
+                      conteudo = Text(valor, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white));
+                    }
+                  } else {
+                    conteudo = const SizedBox.shrink();
+                  }
 
-  while (true) {
-    print('');
-    printTabuleiro(jogo);
-    stdout.write('\nDigite a linha e coluna (ex: 2 3) ou "sair": ');
-    String? input = stdin.readLineSync();
-    
-    if (input == null || input.trim().toLowerCase() == 'sair') {
-      break;
-    }
-
-    List<String> partes = input.trim().split(RegExp(r'\s+'));
-    if (partes.length == 2) {
-      int? x = int.tryParse(partes[0]);
-      int? y = int.tryParse(partes[1]);
-
-      if (x != null && y != null) {
-        jogo.clicarCelula(x, y);
-      }
-    }
+                  return GestureDetector(
+                    onTap: () => _aoClicarCelula(x, y),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: isRevelado ? Colors.grey[800] : Colors.grey[400],
+                        borderRadius: BorderRadius.circular(4),
+                        border: Border.all(color: Colors.black26),
+                      ),
+                      child: Center(child: conteudo),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
