@@ -73,7 +73,59 @@ class CampoMinadoApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'Campo Minado',
       theme: ThemeData.dark(),
-      home: const TelaJogo(), 
+      home: const TelaInicio(), 
+    );
+  }
+}
+
+class TelaInicio extends StatelessWidget {
+  const TelaInicio({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Stack(
+        children: [
+          Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Text(
+                  'Campo Minado',
+                  style: TextStyle(
+                    fontSize: 48,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.redAccent,
+                    letterSpacing: 2,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                const Text(
+                  'Cuidado onde pisa...',
+                  style: TextStyle(fontSize: 16, color: Colors.grey),
+                ),
+                const SizedBox(height: 60),
+
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const TelaJogo()),
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blueAccent,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                    textStyle: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
+                  child: const Text('Jogar'),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
