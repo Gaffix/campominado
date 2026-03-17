@@ -111,8 +111,27 @@ class _TelaJogoState extends State<TelaJogo> {
     if (revelado[x][y]) return;
       
     setState(() {
-      revelado[x][y] = true;
+      _revelarRecursivo(x, y);
     });
+  }
+
+  void _revelarRecursivo(int x, int y) {
+    if (x < 0 || x >= campoSize || y < 0 || y >= campoSize) return;
+    if (revelado[x][y]) return;
+
+    revelado[x][y] = true;
+
+    if (tabuleiro[x][y] == '*') return;
+
+    if (tabuleiro[x][y] == '.') {
+      for (int dx = -1; dx <= 1; dx++) {
+        for (int dy = -1; dy <= 1; dy++) {
+          if (dx != 0 || dy != 0) {
+            _revelarRecursivo(x + dx, y + dy);
+          }
+        }
+      }
+    }
   }
 
   @override
