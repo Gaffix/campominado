@@ -11,10 +11,7 @@ class Ponto {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is Ponto &&
-          runtimeType == other.runtimeType &&
-          x == other.x &&
-          y == other.y;
+      other is Ponto && runtimeType == other.runtimeType && x == other.x && y == other.y;
 
   @override
   int get hashCode => x.hashCode ^ y.hashCode;
@@ -53,28 +50,31 @@ int contarMinasAdjacentes(int x, int y, Set<Ponto> minasPos, int tamanho) {
 List<List<String>> criarTabuleiro(int tamanho, Set<Ponto> minasPos) {
   return List.generate(
     tamanho,
-    (x) => List.generate(tamanho, (y) {
-      if (minasPos.contains(Ponto(x, y))) return '*';
-      int qtd = contarMinasAdjacentes(x, y, minasPos, tamanho);
-      return qtd > 0 ? qtd.toString() : '.';
-    }),
+    (x) => List.generate(
+      tamanho,
+      (y) {
+        if (minasPos.contains(Ponto(x, y))) return '*';
+        int qtd = contarMinasAdjacentes(x, y, minasPos, tamanho);
+        return qtd > 0 ? qtd.toString() : '.';
+      },
+    ),
   );
 }
 
 void main() {
-  runApp(const CampoMinadoApp());
+  runApp(const BoomBoomApp());
 }
 
-class CampoMinadoApp extends StatelessWidget {
-  const CampoMinadoApp({super.key});
+class BoomBoomApp extends StatelessWidget {
+  const BoomBoomApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Campo Minado',
+      title: 'Boom! Boom!',
       theme: ThemeData.dark(),
-      home: const TelaInicio(),
+      home: const TelaInicio(), 
     );
   }
 }
@@ -92,7 +92,7 @@ class TelaInicio extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 const Text(
-                  'Campo Minado',
+                  'Boom! Boom!',
                   style: TextStyle(
                     fontSize: 48,
                     fontWeight: FontWeight.bold,
@@ -117,18 +117,12 @@ class TelaInicio extends StatelessWidget {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.blueAccent,
                     foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 50,
-                      vertical: 15,
-                    ),
-                    textStyle: const TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                    textStyle: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
                   ),
                   child: const Text('Jogar'),
                 ),
-
+                
                 const SizedBox(height: 20),
 
                 OutlinedButton(
@@ -138,10 +132,7 @@ class TelaInicio extends StatelessWidget {
                   style: OutlinedButton.styleFrom(
                     foregroundColor: Colors.white,
                     side: const BorderSide(color: Colors.grey),
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 50,
-                      vertical: 15,
-                    ),
+                    padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
                     textStyle: const TextStyle(fontSize: 20),
                   ),
                   child: const Text('Sair'),
@@ -169,8 +160,8 @@ class _TelaJogoState extends State<TelaJogo> {
   late Set<Ponto> minasPos;
   late List<List<String>> tabuleiro;
   late List<List<bool>> revelado;
-  late List<List<bool>> marcado;
-
+  late List<List<bool>> marcado; 
+  
   bool fimDeJogo = false;
 
   @override
@@ -183,14 +174,8 @@ class _TelaJogoState extends State<TelaJogo> {
     setState(() {
       minasPos = gerarMinas(campoSize, numeroMinas);
       tabuleiro = criarTabuleiro(campoSize, minasPos);
-      revelado = List.generate(
-        campoSize,
-        (_) => List.generate(campoSize, (_) => false),
-      );
-      marcado = List.generate(
-        campoSize,
-        (_) => List.generate(campoSize, (_) => false),
-      );
+      revelado = List.generate(campoSize, (_) => List.generate(campoSize, (_) => false));
+      marcado = List.generate(campoSize, (_) => List.generate(campoSize, (_) => false));
       fimDeJogo = false;
     });
   }
@@ -198,7 +183,7 @@ class _TelaJogoState extends State<TelaJogo> {
   void _aoClicarCelula(int x, int y) {
     if (fimDeJogo) return;
     if (marcado[x][y] || revelado[x][y]) return;
-
+      
     setState(() {
       _revelarRecursivo(x, y);
       _verificarFimDeJogo(x, y);
@@ -242,7 +227,7 @@ class _TelaJogoState extends State<TelaJogo> {
     int celulasSeguras = (campoSize * campoSize) - numeroMinas;
     if (celulasReveladas == celulasSeguras) {
       fimDeJogo = true;
-      _marcarTodasMinas();
+      _marcarTodasMinas(); 
       _mostrarDialogo(vitoria: true);
     }
   }
@@ -264,15 +249,19 @@ class _TelaJogoState extends State<TelaJogo> {
   void _mostrarDialogo({required bool vitoria}) {
     showDialog(
       context: context,
-      barrierDismissible: false,
+      barrierDismissible: false, 
       builder: (BuildContext context) {
         return AlertDialog(
           backgroundColor: Colors.grey[900],
           title: Text(
-            vitoria ? 'Vitória' : 'Derrota',
-            style: TextStyle(
-              color: vitoria ? Colors.greenAccent : Colors.redAccent,
-            ),
+            vitoria ? 'Vitória! 🎉' : 'BOOM! 💥',
+            style: TextStyle(color: vitoria ? Colors.greenAccent : Colors.redAccent),
+          ),
+          content: Text(
+            vitoria 
+              ? 'Parabéns, você ganhou' 
+              : 'Its over, você explodiu.',
+            style: const TextStyle(color: Colors.white),
           ),
           actions: [
             TextButton(
@@ -280,20 +269,14 @@ class _TelaJogoState extends State<TelaJogo> {
                 Navigator.of(context).pop();
                 Navigator.of(context).pop();
               },
-              child: const Text(
-                'Menu Principal',
-                style: TextStyle(color: Colors.grey),
-              ),
+              child: const Text('Menu Principal', style: TextStyle(color: Colors.grey)),
             ),
             TextButton(
               onPressed: () {
-                Navigator.of(context).pop();
-                _iniciarJogo();
+                Navigator.of(context).pop(); 
+                _iniciarJogo(); 
               },
-              child: const Text(
-                'Jogar Novamente',
-                style: TextStyle(color: Colors.blueAccent),
-              ),
+              child: const Text('Jogar Novamente', style: TextStyle(color: Colors.blueAccent)),
             ),
           ],
         );
@@ -304,7 +287,9 @@ class _TelaJogoState extends State<TelaJogo> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Campo Minado')),
+      appBar: AppBar(
+        title: const Text('Boom! Boom!'),
+      ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -323,7 +308,7 @@ class _TelaJogoState extends State<TelaJogo> {
                 itemBuilder: (context, index) {
                   int x = index ~/ campoSize;
                   int y = index % campoSize;
-
+                  
                   bool isRevelado = revelado[x][y];
                   bool isMarcado = marcado[x][y];
                   String valor = tabuleiro[x][y];
@@ -331,29 +316,14 @@ class _TelaJogoState extends State<TelaJogo> {
                   Widget conteudo;
                   if (isRevelado) {
                     if (valor == '*') {
-                      conteudo = const Icon(
-                        Icons.emergency,
-                        color: Colors.redAccent,
-                        size: 20,
-                      );
+                      conteudo = const Icon(Icons.emergency, color: Colors.redAccent, size: 20);
                     } else if (valor == '.') {
                       conteudo = const SizedBox.shrink();
                     } else {
-                      conteudo = Text(
-                        valor,
-                        style: const TextStyle(
-                          fontSize: 18,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
-                      );
+                      conteudo = Text(valor, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white));
                     }
                   } else if (isMarcado) {
-                    conteudo = const Icon(
-                      Icons.flag,
-                      color: Colors.redAccent,
-                      size: 20,
-                    );
+                    conteudo = const Icon(Icons.flag, color: Colors.redAccent, size: 20);
                   } else {
                     conteudo = const SizedBox.shrink();
                   }
@@ -362,9 +332,7 @@ class _TelaJogoState extends State<TelaJogo> {
                     onTap: () => _aoClicarCelula(x, y),
                     onLongPress: () {
                       if (!revelado[x][y] && !fimDeJogo) {
-                        setState(() {
-                          marcado[x][y] = !marcado[x][y];
-                        });
+                        setState(() { marcado[x][y] = !marcado[x][y]; });
                       }
                     },
                     child: Container(
