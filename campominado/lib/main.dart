@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'dart:math';
 
 class Ponto {
@@ -121,6 +122,21 @@ class TelaInicio extends StatelessWidget {
                   ),
                   child: const Text('Jogar'),
                 ),
+                
+                const SizedBox(height: 20),
+
+                OutlinedButton(
+                  onPressed: () {
+                    SystemNavigator.pop();
+                  },
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: Colors.white,
+                    side: const BorderSide(color: Colors.grey),
+                    padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                    textStyle: const TextStyle(fontSize: 20),
+                  ),
+                  child: const Text('Sair'),
+                ),
               ],
             ),
           ),
@@ -144,6 +160,8 @@ class _TelaJogoState extends State<TelaJogo> {
   late Set<Ponto> minasPos;
   late List<List<String>> tabuleiro;
   late List<List<bool>> revelado;
+  
+  bool fimDeJogo = false;
 
   @override
   void initState() {
@@ -156,14 +174,17 @@ class _TelaJogoState extends State<TelaJogo> {
       minasPos = gerarMinas(campoSize, numeroMinas);
       tabuleiro = criarTabuleiro(campoSize, minasPos);
       revelado = List.generate(campoSize, (_) => List.generate(campoSize, (_) => false));
+      fimDeJogo = false;
     });
   }
 
   void _aoClicarCelula(int x, int y) {
+    if (fimDeJogo) return;
     if (revelado[x][y]) return;
       
     setState(() {
       _revelarRecursivo(x, y);
+      _verificarFimDeJogo(x, y);
     });
   }
 
@@ -184,6 +205,68 @@ class _TelaJogoState extends State<TelaJogo> {
         }
       }
     }
+  }
+
+  void _verificarFimDeJogo(int ultimoX, int ultimoY) {
+    if (tabuleiro[ultimoX][ultimoY] == '*') {
+      fimDeJogo = true;
+      _revelarTudo();
+      _mostrarDialogo(vitoria: false);
+      return;
+    }
+
+    int celulasReveladas = 0;
+    for (int i = 0; i < campoSize; i++) {
+      for (int j = 0; j < campoSize; j++) {
+        if (revelado[i][j]) celulasReveladas++;
+      }
+    }
+
+    int celulasSeguras = (campoSize * campoSize) - numeroMinas;
+    if (celulasReveladas == celulasSeguras) {
+      fimDeJogo = true;
+      _mostrarDialogo(vitoria: true);
+    }
+  }
+
+  void _revelarTudo() {
+    for (int i = 0; i < campoSize; i++) {
+      for (int j = 0; j < campoSize; j++) {
+        revelado[i][j] = true;
+      }
+    }
+  }
+
+  void _mostrarDialogo({required bool vitoria}) {
+    showDialog(
+      context: context,
+      barrierDismissible: false, 
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: Colors.grey[900],
+          title: Text(
+            vitoria ? 'Vitória' : 'Derrota',
+            style: TextStyle(color: vitoria ? Colors.greenAccent : Colors.redAccent),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+                Navigator.of(context).pop();
+              },
+              child: const Text('Menu Principal', style: TextStyle(color: Colors.grey)),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); 
+                _iniciarJogo(); 
+              },
+              child: const Text('Jogar Novamente', style: TextStyle(color: Colors.blueAccent)),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
