@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'dart:math';
 
+// logica
 class Ponto {
   final int x;
   final int y;
@@ -79,6 +80,7 @@ class BoomBoomApp extends StatelessWidget {
   }
 }
 
+// TELA DE INÍCIO
 class TelaInicio extends StatelessWidget {
   const TelaInicio({super.key});
 
@@ -140,12 +142,28 @@ class TelaInicio extends StatelessWidget {
               ],
             ),
           ),
+          
+          const Align(
+            alignment: Alignment.bottomCenter,
+            child: Padding(
+              padding: EdgeInsets.only(bottom: 48.0), // pra sair de tras dos botao de baixo
+              child: Text(
+                'Desenvolvido por Bruno Gelain e João Pramio',
+                style: TextStyle(
+                  color: Colors.grey,
+                  fontSize: 14,
+                  fontStyle: FontStyle.italic,
+                ),
+              ),
+            ),
+          ),
         ],
       ),
     );
   }
 }
 
+// TELA DO JOGO
 class TelaJogo extends StatefulWidget {
   const TelaJogo({super.key});
 
@@ -154,7 +172,7 @@ class TelaJogo extends StatefulWidget {
 }
 
 class _TelaJogoState extends State<TelaJogo> {
-  static const int campoSize = 8;
+  static const int campoSize = 12;
   static const int numeroMinas = 8;
 
   late Set<Ponto> minasPos;
