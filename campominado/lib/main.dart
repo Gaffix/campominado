@@ -173,7 +173,7 @@ class TelaJogo extends StatefulWidget {
 
 class _TelaJogoState extends State<TelaJogo> {
   static const int campoSize = 12;
-  static const int numeroMinas = 8;
+  static const int numeroMinas = 20;
 
   late Set<Ponto> minasPos;
   late List<List<String>> tabuleiro;
@@ -318,6 +318,12 @@ class _TelaJogoState extends State<TelaJogo> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Boom! Boom!'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: _iniciarJogo,
+          )
+        ],
       ),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
