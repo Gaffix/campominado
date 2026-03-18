@@ -163,6 +163,7 @@ class _TelaJogoState extends State<TelaJogo> {
   late List<List<bool>> marcado; 
   
   bool fimDeJogo = false;
+  bool isModoCavar = true;
 
   @override
   void initState() {
@@ -177,17 +178,27 @@ class _TelaJogoState extends State<TelaJogo> {
       revelado = List.generate(campoSize, (_) => List.generate(campoSize, (_) => false));
       marcado = List.generate(campoSize, (_) => List.generate(campoSize, (_) => false));
       fimDeJogo = false;
+      isModoCavar = true; 
     });
   }
 
   void _aoClicarCelula(int x, int y) {
     if (fimDeJogo) return;
-    if (marcado[x][y] || revelado[x][y]) return;
+
+    if (isModoCavar) {
+      if (marcado[x][y] || revelado[x][y]) return;
       
-    setState(() {
-      _revelarRecursivo(x, y);
-      _verificarFimDeJogo(x, y);
-    });
+      setState(() {
+        _revelarRecursivo(x, y);
+        _verificarFimDeJogo(x, y);
+      });
+    } else {
+      if (revelado[x][y]) return;
+
+      setState(() {
+        marcado[x][y] = !marcado[x][y];
+      });
+    }
   }
 
   void _revelarRecursivo(int x, int y) {
@@ -347,6 +358,34 @@ class _TelaJogoState extends State<TelaJogo> {
                 },
               ),
             ),
+          ),
+          
+          const SizedBox(height: 20),
+          
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              ElevatedButton.icon(
+                onPressed: () => setState(() => isModoCavar = true),
+                icon: const Icon(Icons.touch_app),
+                label: const Text('Cavar'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: isModoCavar ? Colors.blueAccent : Colors.grey[700],
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                ),
+              ),
+              ElevatedButton.icon(
+                onPressed: () => setState(() => isModoCavar = false),
+                icon: const Icon(Icons.flag),
+                label: const Text('Marcar'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: !isModoCavar ? Colors.redAccent : Colors.grey[700],
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                ),
+              ),
+            ],
           ),
         ],
       ),
